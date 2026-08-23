@@ -114,6 +114,7 @@ fun ScannerView(
                 }
 
                 val imageAnalyzer = ImageAnalysis.Builder()
+                    .setTargetResolution(android.util.Size(1280, 720))
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                     .build()
                     .also {

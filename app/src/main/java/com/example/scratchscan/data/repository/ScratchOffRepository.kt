@@ -53,7 +53,7 @@ class ScratchOffRepository(
                     
                     games.add(
                         ScratchOffGame(
-                            gameNumber = rawName.hashCode(),
+                            gameNumber = line.hashCode(),
                             name = rawName,
                             price = price,
                             status = "Active",

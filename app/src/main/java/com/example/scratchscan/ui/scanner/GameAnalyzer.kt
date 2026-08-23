@@ -66,7 +66,7 @@ class GameAnalyzer(
         com.google.android.gms.tasks.Tasks.whenAllComplete(objectTask, barcodeTask, textTask)
             .addOnCompleteListener {
                 try {
-                    val visionText = textTask.result as? Text
+                    val visionText = if (textTask.isSuccessful) textTask.result as? Text else null
                     val brandBlock = visionText?.textBlocks?.find { 
                         it.text.contains("Maryland", ignoreCase = true) || 
                         it.text.contains("Lottery", ignoreCase = true) 
@@ -75,13 +75,13 @@ class GameAnalyzer(
                     if (brandBlock != null) {
                         onObjectDetected(brandBlock.boundingBox ?: Rect(), brandBlock.cornerPoints?.toList())
                     } else {
-                        val objects = objectTask.result
+                        val objects = if (objectTask.isSuccessful) objectTask.result else null
                         objects?.firstOrNull()?.let { 
                             onObjectDetected(it.boundingBox, null)
                         }
                     }
 
-                    val barcodes = barcodeTask.result
+                    val barcodes = if (barcodeTask.isSuccessful) barcodeTask.result else null
                     val barcode = barcodes?.firstOrNull()
                     
                     var gameNumber: Int? = null
@@ -121,18 +121,11 @@ class GameAnalyzer(
     }
 
     private fun extractGameNumberFromText(text: String): Int? {
-        val regex = Regex("\\b\\d{3,4}\\b")
-        return regex.find(text)?.value?.toIntOrNull()
+        val regex = Regex("(?i)(?:GAME|GME|#)\\s*(\\d{3})")
+        return regex.find(text)?.groupValues?.get(1)?.toIntOrNull()
     }
 
     private fun extractPotentialGameName(visionText: Text): String? {
-        val commonTerms = listOf("Maryland", "Lottery", "Scratch-Off", "Game", "Void", "Prize")
-        return visionText.textBlocks
-            .maxByOrNull { it.boundingBox?.width() ?: 0 }
-            ?.text
-            ?.split("\n")
-            ?.firstOrNull { line ->
-                commonTerms.none { term -> line.contains(term, ignoreCase = true) } && line.length > 3
-            }
+        return visionText.text
     }
 }

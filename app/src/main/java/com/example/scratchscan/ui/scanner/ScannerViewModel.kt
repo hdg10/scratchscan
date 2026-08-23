@@ -72,7 +72,7 @@ class ScannerViewModel(application: Application) : AndroidViewModel(application)
             val matchedGame = if (gameNumber != null) {
                 games.find { it.gameNumber == gameNumber }
             } else if (gameName != null) {
-                games.find { it.name.contains(gameName, ignoreCase = true) }
+                games.find { gameName.contains(it.name, ignoreCase = true) }
             } else null
 
             if (matchedGame != null) {
