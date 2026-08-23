@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "930151037444",
+    "project_id": "com-example-scratchscan-e0d29",
+    "storage_bucket": "com-example-scratchscan-e0d29.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:930151037444:android:245eeb923bee1c5b5ed351",
+        "android_client_info": {
+          "package_name": "com.example.scratchscan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCx1Gfn46QjdM-6X8fINwKM6kILiP-40Fs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
