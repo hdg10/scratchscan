@@ -53,9 +53,7 @@ class ScannerViewModel(application: Application) : AndroidViewModel(application)
     private var detectionExpiryJob: Job? = null
 
     init {
-        viewModelScope.launch {
-            repository.refreshGames()
-        }
+        // ViewModelScope launch for initial setup if needed
     }
 
     fun onObjectDetected(boundingBox: Rect, corners: List<Point>? = null) {

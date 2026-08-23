@@ -9,7 +9,7 @@ import com.example.scratchscan.data.PrizeTier
 import com.example.scratchscan.data.ChatMessage
 import com.example.scratchscan.data.ChatSession
 
-@Database(entities = [ScratchOffGame::class, PrizeTier::class, ChatSession::class, ChatMessage::class], version = 4, exportSchema = false)
+@Database(entities = [ScratchOffGame::class, PrizeTier::class, ChatSession::class, ChatMessage::class], version = 5, exportSchema = false)
 abstract class ScratchOffDatabase : RoomDatabase() {
     abstract fun gameDao(): GameDao
     abstract fun chatDao(): ChatDao

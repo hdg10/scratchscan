@@ -66,7 +66,7 @@ class GameAnalyzer(
         com.google.android.gms.tasks.Tasks.whenAllComplete(objectTask, barcodeTask, textTask)
             .addOnCompleteListener {
                 try {
-                    val visionText = if (textTask.isSuccessful) textTask.result else null
+                    val visionText = if (textTask.isSuccessful) textTask.result as? Text else null
                     val brandBlock = visionText?.textBlocks?.find { 
                         it.text.contains("Maryland", ignoreCase = true) || 
                         it.text.contains("Lottery", ignoreCase = true) 

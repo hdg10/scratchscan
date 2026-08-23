@@ -109,10 +109,10 @@ class MarylandLotteryDataSource {
             val scriptGames = extractFromScripts(doc)
             if (scriptGames.isNotEmpty()) return@withContext scriptGames
 
-            getFallbackGames()
+            emptyList<ScratchOffGame>()
         } catch (e: Exception) {
             Log.e(tag, "Scraping failed: ${e.localizedMessage}", e)
-            getFallbackGames()
+            emptyList()
         }
     }
 
@@ -200,18 +200,6 @@ class MarylandLotteryDataSource {
         return absoluteUrl.replace(" ", "%20")
             .replace("$", "%24")
             .replace("&", "%26")
-    }
-
-    private fun getFallbackGames(): List<ScratchOffGame> {
-        // Removed Unsplash fallbacks. Setting artworkUrl to null to trigger the custom UI placeholder.
-        return listOf(
-            ScratchOffGame(811, "Extreme Green", 20, "Active", "$1,000,000", artworkUrl = null),
-            ScratchOffGame(812, "Gold Rush", 10, "Active", "$500,000", artworkUrl = null),
-            ScratchOffGame(813, "Cash Plu$", 5, "Active", "$50,000", artworkUrl = null),
-            ScratchOffGame(814, "Lucky 7s", 2, "Active", "$7,000", artworkUrl = null),
-            ScratchOffGame(815, "Maryland Jackpot", 30, "Active", "$2,000,000", artworkUrl = null),
-            ScratchOffGame(816, "BINGO", 3, "Active", "$30,000", artworkUrl = null)
-        )
     }
 
     suspend fun fetchGameDetails(gameNumber: Int): List<PrizeTier> = withContext(Dispatchers.IO) {
