@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -38,6 +37,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,10 +49,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import java.util.concurrent.Executors
@@ -61,8 +61,8 @@ import java.util.concurrent.Executors
 fun ScannerView(
     onNavigateToStats: (Int) -> Unit,
     viewModel: ScannerViewModel = viewModel(
-        factory = ScannerViewModel.Factory(LocalContext.current.applicationContext as Application)
-    )
+        factory = ScannerViewModel.Factory(LocalContext.current.applicationContext as Application),
+    ),
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -71,7 +71,7 @@ fun ScannerView(
     val imageDimensions by viewModel.imageDimensions.collectAsState()
     
     var camera by remember { mutableStateOf<Camera?>(null) }
-    var isFlashEnabled by remember { mutableStateOf(false) }
+    var isFlashEnabled by remember { mutableStateOf(value = false) }
     val cameraExecutor = remember { Executors.newSingleThreadExecutor() }
     var previewView: PreviewView? by remember { mutableStateOf(null) }
 
@@ -101,29 +101,33 @@ fun ScannerView(
                 }
             },
             modifier = Modifier.fillMaxSize(),
-            update = { _ -> }
+            update = { },
         )
 
         // Camera setup in LaunchedEffect to avoid re-binding
-        androidx.compose.runtime.LaunchedEffect(Unit) {
+        LaunchedEffect(Unit) {
             val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
-            cameraProviderFuture.addListener({
-                val cameraProvider = cameraProviderFuture.get()
-                val preview = Preview.Builder().build().also {
-                    it.setSurfaceProvider(previewView?.surfaceProvider)
-                }
+            cameraProviderFuture.addListener(
+                {
+                    val cameraProvider = cameraProviderFuture.get()
+                    val preview = Preview.Builder().build().also {
+                        it.surfaceProvider = previewView?.surfaceProvider
+                    }
 
                 val imageAnalyzer = ImageAnalysis.Builder()
                     .setTargetResolution(android.util.Size(1280, 720))
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                     .build()
                     .also {
-                        it.setAnalyzer(cameraExecutor, GameAnalyzer(
-                            onObjectDetected = { rect, corners -> viewModel.onObjectDetected(rect, corners) },
-                            onGameIdentified = { num, name, rect, corners -> viewModel.onGameIdentified(num, name, rect, corners) },
-                            onDiagnosticUpdate = { msg -> viewModel.updateDiagnostics(msg) },
-                            onDimensionsUpdate = { w, h -> viewModel.setImageDimensions(w, h) }
-                        ))
+                        it.setAnalyzer(
+                            cameraExecutor,
+                            GameAnalyzer(
+                                onObjectDetected = { rect, corners -> viewModel.onObjectDetected(rect, corners) },
+                                onGameIdentified = { name, rect, corners -> viewModel.onGameIdentified(name, rect, corners) },
+                                onDiagnosticUpdate = { msg -> viewModel.updateDiagnostics(msg) },
+                                onDimensionsUpdate = { w, h -> viewModel.setImageDimensions(w, h) },
+                            ),
+                        )
                     }
 
                 val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA

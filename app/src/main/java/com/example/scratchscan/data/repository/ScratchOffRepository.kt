@@ -65,7 +65,7 @@ class ScratchOffRepository(
                             probability = probability,
                             allPrizesRemaining = allPrizesRemaining,
                             artworkUrl = artworkUrl,
-                            lastUpdated = System.currentTimeMillis()
+                            lastUpdated = System.currentTimeMillis(),
                         )
                     )
                 }
@@ -146,10 +146,12 @@ class ScratchOffRepository(
             gameNumber = gameWithPrizes.game.gameNumber,
             topPrizeAmount = topPrize?.amount ?: 0L,
             topPrizesRemaining = topPrize?.remainingCount ?: 0,
-            topPrizeRemainingRatio = if (topPrize != null && topPrize.initialCount > 0) topPrize.remainingCount.toDouble() / topPrize.initialCount else 0.0,
+            topPrizeRemainingRatio = if ((topPrize != null) && (topPrize.initialCount > 0)) {
+                topPrize.remainingCount.toDouble() / topPrize.initialCount
+            } else 0.0,
             prizeToTicketRatio = if (estimatedTicketsRemaining > 0) totalRemainingPrizes.toDouble() / estimatedTicketsRemaining else 0.0,
             estimatedTicketsRemaining = estimatedTicketsRemaining,
-            score = (topPrize?.remainingCount ?: 0).toDouble() * 10.0
+            score = (topPrize?.remainingCount ?: 0).toDouble() * 10.0,
         )
     }
 }
