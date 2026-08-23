@@ -7,10 +7,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.scratchscan.data.ChatMessage
 import com.example.scratchscan.data.local.ScratchOffDatabase
-import com.example.scratchscan.data.remote.ConversationManager
 import com.example.scratchscan.data.repository.GeminiRepository
 import com.google.firebase.Firebase
-import com.google.firebase.ai.ai
+import com.google.firebase.vertexai.vertexAI
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -24,7 +23,7 @@ data class ChatUiState(
     val messages: List<ChatMessage> = emptyList(),
     val isGenerating: Boolean = false,
     val currentStreamingText: String = "",
-    val error: String? = null
+    val error: String? = null,
 )
 
 class ChatViewModel(
@@ -33,8 +32,8 @@ class ChatViewModel(
 ) : AndroidViewModel(application) {
     
     private val database = ScratchOffDatabase.getDatabase(application)
-    // Using the Firebase AI extension to get the model
-    private val generativeModel = Firebase.ai.generativeModel(
+    // Using the Firebase Vertex AI extension to get the model
+    private val generativeModel = Firebase.vertexAI.generativeModel(
         modelName = "gemini-1.5-flash"
     )
     private val repository = GeminiRepository(database.chatDao(), generativeModel)

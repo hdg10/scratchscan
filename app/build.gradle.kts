@@ -75,7 +75,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.jsoup)
 
-    implementation(libs.firebase.ai)
+    implementation(libs.firebase.vertexai)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk)

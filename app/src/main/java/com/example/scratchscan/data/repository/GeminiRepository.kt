@@ -4,19 +4,19 @@ import com.example.scratchscan.data.ChatMessage
 import com.example.scratchscan.data.ChatSession
 import com.example.scratchscan.data.local.ChatDao
 import com.example.scratchscan.data.remote.ConversationManager
-import com.google.firebase.ai.GenerativeModel
-import com.google.firebase.ai.type.content
+import com.google.firebase.vertexai.GenerativeModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.retryWhen
 import java.io.IOException
 import kotlin.math.pow
+import kotlin.time.Duration.Companion.milliseconds
 
 class GeminiRepository(
     private val chatDao: ChatDao,
     private val generativeModel: GenerativeModel,
-    private val conversationManager: ConversationManager = ConversationManager()
+    private val conversationManager: ConversationManager = ConversationManager(),
 ) {
     fun getChatMessages(sessionId: String): Flow<List<ChatMessage>> =
         chatDao.getMessagesForSession(sessionId)
@@ -33,9 +33,9 @@ class GeminiRepository(
         var fullResponse = ""
         generativeModel.generateContentStream(userMessage)
             .retryWhen { cause, attempt ->
-                if (attempt < 3 && isTransientError(cause)) {
+                if ((attempt < 3) && isTransientError(cause)) {
                     val delayTime = 2.0.pow(attempt.toDouble()).toLong() * 1000
-                    delay(delayTime)
+                    delay(delayTime.milliseconds)
                     true
                 } else {
                     false

@@ -17,7 +17,7 @@ class GameAnalyzer(
     private val onObjectDetected: (Rect, List<Point>?) -> Unit,
     private val onGameIdentified: (Int?, String?, Rect, List<Point>?) -> Unit,
     private val onDiagnosticUpdate: (String) -> Unit,
-    private val onDimensionsUpdate: (Int, Int) -> Unit
+    private val onDimensionsUpdate: (Int, Int) -> Unit,
 ) : ImageAnalysis.Analyzer {
 
     private val objectDetector = ObjectDetection.getClient(
@@ -34,12 +34,12 @@ class GameAnalyzer(
 
     private var isProcessing = false
     private var lastProcessingTime = 0L
-    private val FRAME_THROTTLE_MS = 250L 
+    private val frameThrottleMs = 250L 
 
     @androidx.annotation.OptIn(androidx.camera.core.ExperimentalGetImage::class)
     override fun analyze(imageProxy: ImageProxy) {
         val currentTime = System.currentTimeMillis()
-        if (isProcessing || (currentTime - lastProcessingTime) < FRAME_THROTTLE_MS) {
+        if (isProcessing || ((currentTime - lastProcessingTime) < frameThrottleMs)) {
             imageProxy.close()
             return
         }
@@ -66,7 +66,7 @@ class GameAnalyzer(
         com.google.android.gms.tasks.Tasks.whenAllComplete(objectTask, barcodeTask, textTask)
             .addOnCompleteListener {
                 try {
-                    val visionText = if (textTask.isSuccessful) textTask.result as? Text else null
+                    val visionText = if (textTask.isSuccessful) textTask.result else null
                     val brandBlock = visionText?.textBlocks?.find { 
                         it.text.contains("Maryland", ignoreCase = true) || 
                         it.text.contains("Lottery", ignoreCase = true) 
@@ -125,7 +125,7 @@ class GameAnalyzer(
         return regex.find(text)?.groupValues?.get(1)?.toIntOrNull()
     }
 
-    private fun extractPotentialGameName(visionText: Text): String? {
+    private fun extractPotentialGameName(visionText: Text): String {
         return visionText.text
     }
 }

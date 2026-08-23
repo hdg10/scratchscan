@@ -10,7 +10,7 @@ activityCompose = "1.10.0"
 kotlin = "2.1.0"
 composeBom = "2025.01.00"
 navigation = "2.8.6"
-firebaseAi = "16.1.0"
+firebaseVertexai = "16.0.0-beta02"
 googleGmsGoogleServices = "4.4.2"
 ksp = "2.1.0-1.0.29"
 room = "2.6.1"
@@ -59,7 +59,7 @@ mlkit-text-rec = { group = "com.google.android.gms", name = "play-services-mlkit
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 jsoup = { group = "org.jsoup", name = "jsoup", version.ref = "jsoup" }
-firebase-ai = { group = "com.google.firebase", name = "firebase-ai", version.ref = "firebaseAi" }
+firebase-vertexai = { group = "com.google.firebase", name = "firebase-vertexai", version.ref = "firebaseVertexai" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }

@@ -16,11 +16,12 @@ import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
 import kotlin.math.pow
+import kotlin.time.Duration.Companion.milliseconds
 
 class ScratchOffRepository(
     private val context: Context,
     private val gameDao: GameDao,
-    private val remoteDataSource: MarylandLotteryDataSource = MarylandLotteryDataSource()
+    private val remoteDataSource: MarylandLotteryDataSource = MarylandLotteryDataSource(),
 ) {
     val allGames: Flow<List<ScratchOffGame>> = gameDao.getAllGames()
 
@@ -73,7 +74,7 @@ class ScratchOffRepository(
             
             if (games.isNotEmpty()) {
                 val currentGames = gameDao.getAllGames().first()
-                val favoritesMap = currentGames.associateBy({ it.gameNumber }, { it.isFavorite })
+                val favoritesMap = currentGames.associateBy({ it.gameNumber }) { it.isFavorite }
                 val updatedGames = games.map { it.copy(isFavorite = favoritesMap[it.gameNumber] ?: false) }
                 gameDao.insertGames(updatedGames)
             }
@@ -88,7 +89,7 @@ class ScratchOffRepository(
         var inQuotes = false
         for (c in line) {
             if (c == '\"') inQuotes = !inQuotes
-            else if (c == ',' && !inQuotes) {
+            else if ((c == ',') && !inQuotes) {
                 result.add(cur.toString()); cur = StringBuilder()
             } else cur.append(c)
         }
@@ -108,15 +109,15 @@ class ScratchOffRepository(
                 val remoteGames = remoteDataSource.fetchAllGames()
                 if (remoteGames.isNotEmpty()) {
                     val currentGames = gameDao.getAllGames().first()
-                    val favoritesMap = currentGames.associateBy({ it.gameNumber }, { it.isFavorite })
+                    val favoritesMap = currentGames.associateBy({ it.gameNumber }) { it.isFavorite }
                     val updatedGames = remoteGames.map { it.copy(isFavorite = favoritesMap[it.gameNumber] ?: false) }
                     gameDao.insertGames(updatedGames)
                     return
                 } else throw IOException("Empty data received")
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 attempt++
                 if (attempt >= maxAttempts) break
-                delay(2.0.pow(attempt.toDouble()).toLong() * 1000)
+                delay(2.0.pow(attempt.toDouble()).toLong().milliseconds * 1000)
             }
         }
     }
@@ -138,7 +139,9 @@ class ScratchOffRepository(
         val topPrize = prizes.maxByOrNull { it.amount }
         val totalInitialPrizes = prizes.sumOf { it.initialCount }
         val totalRemainingPrizes = prizes.sumOf { it.remainingCount }
-        val estimatedTicketsRemaining = if (totalInitialPrizes > 0) (totalRemainingPrizes.toDouble() / totalInitialPrizes * 1000000).toInt() else 0
+        val estimatedTicketsRemaining = if (totalInitialPrizes > 0) {
+            ((totalRemainingPrizes.toDouble() / totalInitialPrizes) * 1000000).toInt()
+        } else 0
         return CalculatedStats(
             gameNumber = gameWithPrizes.game.gameNumber,
             topPrizeAmount = topPrize?.amount ?: 0L,
